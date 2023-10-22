@@ -14,3 +14,4 @@ class UserItemSerializer(serializers.ModelSerializer):
 
     customer = serializers.CharField(read_only=True)
     total = serializers.IntegerField()
+    

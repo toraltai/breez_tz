@@ -1,0 +1,15 @@
+version: '2'
+services:
+  web-app:
+    build: 
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config:/config
+    command: >
+      sh -c "python3 manage.py makemigrations && 
+      python3 manage.py migrate && 
+      python3 su.py && 
+      gunicorn -b 0.0.0.0:8000 --workers 2 --threads 4 config.wsgi:application"
+

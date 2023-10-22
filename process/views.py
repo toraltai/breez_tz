@@ -65,11 +65,11 @@ def add_deals(request):
  
     
 class UserItemAPI(generics.ListAPIView):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().order_by('-total')[:5]
     serializer_class = UserItemSerializer
 
-    def get(self, request):
-        queryset = Product.objects.all().order_by('-total')[:5]
-        serializer = UserItemSerializer(queryset, many=True)
-        return Response({"request":serializer.data})
-        
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({'request': serializer.data})
+    
