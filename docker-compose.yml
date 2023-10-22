@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   web-app:
     build: 
@@ -7,12 +7,36 @@ services:
       - "8000:8000"
     volumes:
       - ./config:/config
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - ./static:/code/static
     command: >
       sh -c "python3 manage.py makemigrations && 
       python3 manage.py migrate && 
       python3 su.py && 
       gunicorn -b 0.0.0.0:8000 --workers 2 --threads 4 config.wsgi:application"
+    depends_on:
+      - redis
+    networks:
+      - nginx_network
+      - backend_network
 
+  nginx:
+    image: "nginx:latest"
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./static:/code/static
+
+
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+    networks:
+      - backend_network
+
+networks:
+  nginx_network:
+    driver: bridge
+  backend_network:
+    driver: bridge

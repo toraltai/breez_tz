@@ -76,5 +76,5 @@ class UserItemAPI(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serialized_data = CustomerSerializer(queryset, many=True).data
-        # cache.set('top5', serialized_data, 60*15)
+        cache.set('top5', serialized_data, 60*15)
         return super().list(request, *args, **kwargs)
