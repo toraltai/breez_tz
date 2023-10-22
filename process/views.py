@@ -63,7 +63,7 @@ def add_deals(request):
             # return Response(ProductSerializer(info).data)
             return Response({"status":"OK"})
     except KeyError:
-        return Response({"status""Something wrong"})
+        return Response({"status":"Something wrong"})
 
 
 class UserItemAPI(generics.ListAPIView):
