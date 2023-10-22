@@ -1,7 +1,8 @@
+from django.forms import model_to_dict
 from rest_framework import generics
 from rest_framework.decorators import api_view
 from .models import *
-from .serializers import ProductSerializer, UserItemSerializer
+from .serializers import *
 from rest_framework.response import Response
 from django.db.models import F, Sum
 from .utils import allowed_file
@@ -63,13 +64,7 @@ def add_deals(request):
     except KeyError:
         return Response("Something wrong")
  
-    
-class UserItemAPI(generics.ListAPIView):
-    queryset = Product.objects.all().order_by('-total')[:5]
-    serializer_class = UserItemSerializer
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response({'request': serializer.data})
-    
+class UserItemAPI(generics.ListAPIView):
+    queryset = Customer.objects.prefetch_related('item').annotate(total=Sum('products__total')).order_by('-total')[:5]
+    serializer_class = CustomerSerializer

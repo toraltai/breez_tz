@@ -6,7 +6,7 @@ class File(models.Model):
 
 class Customer(models.Model):
     customer = models.CharField('Customer', max_length=50)
-    item = models.ManyToManyField('Product', related_name='items')
+    item = models.ManyToManyField('Product', related_name='customers')
 
     def __str__(self):
         return f"{self.customer}"
