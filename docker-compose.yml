@@ -7,6 +7,9 @@ services:
       - "8000:8000"
     volumes:
       - ./config:/config
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     command: >
       sh -c "python3 manage.py makemigrations && 
       python3 manage.py migrate && 

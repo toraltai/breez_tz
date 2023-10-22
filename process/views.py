@@ -1,4 +1,5 @@
-from django.forms import model_to_dict
+from django.conf import settings
+from django.views.decorators.cache import cache_page
 from rest_framework import generics
 from rest_framework.decorators import api_view
 from .models import *
@@ -35,7 +36,7 @@ def add_deals(request):
                 )
                 info = product
                 # return Response(ProductSerializer(info).data)
-                return Response("OK")
+                return Response({"status":"OK"})
             else:
                 # Если item не существует, создать новую запись Product
                 customer_obj = Customer.objects.get(customer=customer)
@@ -47,7 +48,7 @@ def add_deals(request):
                                         date=date)
                 customer_obj.item.add(info)
                 # return Response(ProductSerializer(info).data)
-                return Response("OK")
+                return Response({"status":"OK"})
         else:
             # Если пользователь не существует, создать нового Customer и новую запись Product
             customer_obj = Customer.objects.create(customer=customer)
@@ -60,11 +61,20 @@ def add_deals(request):
             )
             customer_obj.item.add(info)
             # return Response(ProductSerializer(info).data)
-            return Response("OK")
+            return Response({"status":"OK"})
     except KeyError:
-        return Response("Something wrong")
- 
+        return Response({"status""Something wrong"})
+
 
 class UserItemAPI(generics.ListAPIView):
-    queryset = Customer.objects.prefetch_related('item').annotate(total=Sum('products__total')).order_by('-total')[:5]
     serializer_class = CustomerSerializer
+
+    def get_queryset(self):
+        return Customer.objects.prefetch_related('item').annotate(total=Sum('products__total')
+                                                                  ).order_by('-total')[:5]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serialized_data = CustomerSerializer(queryset, many=True).data
+        # cache.set('top5', serialized_data, 60*15)
+        return super().list(request, *args, **kwargs)
