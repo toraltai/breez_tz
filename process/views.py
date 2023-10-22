@@ -1,68 +1,75 @@
-from django.http import HttpResponse
-from rest_framework import status, viewsets, generics
-from rest_framework.views import APIView
+from rest_framework import generics
+from rest_framework.decorators import api_view
 from .models import *
-from .serializers import *
+from .serializers import ProductSerializer, UserItemSerializer
 from rest_framework.response import Response
-from django.db.models import F
+from django.db.models import F, Sum
+from .utils import allowed_file
 
 
-class FileAPI(APIView):
-    def post(self, request):
-        file_data = request.data.get('file')
-        if file_data:
-            import json
-            with open(f'{file_data}', 'r') as file:
-                data = json.load(file)
+@api_view(['POST'])
+def add_deals(request):
+    file_data = request.data.get('file')
+    if allowed_file(str(file_data)):
+        import json
+        with open(f'{file_data}', 'r') as file:
+            data = json.load(file)
+    else:
+        return Response('Need csv')
+    
+    customer = data['customer']
+    item = data['item']
+    total = data['total']
+    quantity = data['quantity']
+    date=data['date']
         
-        customer = data['customer']
-        item = data['item']
-        total = data['total']
-        quantity = data['quantity']
-        date=data['date']
-            
-        try:
-            if Customer.objects.filter(customer=customer).exists():
-        # Обновить существующую запись Product, если item уже существует у пользователя
-                product = Product.objects.filter(customer__customer=customer, item=item).first()
-                if product:
-                    Product.objects.filter(customer__customer=customer, item=item).update(
-                        total=F('total') + total,
-                        quantity=F('quantity') + quantity,
-                    )
-                    info = product
-                    return Response(ProductSerializer(info).data)
-                else:
-                    # Если item не существует, создать новую запись Product
-                    customer_obj = Customer.objects.get(customer=customer)
-                    info = Product.objects.create(
-                                            customer=customer_obj,
-                                            item=item,
-                                            total=total,
-                                            quantity=quantity,
-                                            date=date)
-                    customer_obj.item.add(info)
-                    return Response(ProductSerializer(info).data)
-            else:
-                # Если пользователь не существует, создать нового Customer и новую запись Product
-                customer_obj = Customer.objects.create(customer=customer)
-                info = Product.objects.create(
-                    customer=customer_obj,
-                    item=item,
-                    total=total,
-                    quantity=quantity,
-                    date=data.get('date'),
+    try:
+        if Customer.objects.filter(customer=customer).exists():
+    # Обновить существующую запись Product, если item уже существует у пользователя
+            product = Product.objects.filter(customer__customer=customer, item=item).first()
+            if product:
+                Product.objects.filter(customer__customer=customer, item=item).update(
+                    total=F('total') + total,
+                    quantity=F('quantity') + quantity,
                 )
+                info = product
+                # return Response(ProductSerializer(info).data)
+                return Response("OK")
+            else:
+                # Если item не существует, создать новую запись Product
+                customer_obj = Customer.objects.get(customer=customer)
+                info = Product.objects.create(
+                                        customer=customer_obj,
+                                        item=item,
+                                        total=total,
+                                        quantity=quantity,
+                                        date=date)
                 customer_obj.item.add(info)
-                return Response(ProductSerializer(info).data)
-        except KeyError:
-            return Response("Something wrong")
+                # return Response(ProductSerializer(info).data)
+                return Response("OK")
+        else:
+            # Если пользователь не существует, создать нового Customer и новую запись Product
+            customer_obj = Customer.objects.create(customer=customer)
+            info = Product.objects.create(
+                customer=customer_obj,
+                item=item,
+                total=total,
+                quantity=quantity,
+                date=data.get('date'),
+            )
+            customer_obj.item.add(info)
+            # return Response(ProductSerializer(info).data)
+            return Response("OK")
+    except KeyError:
+        return Response("Something wrong")
  
     
 class UserItemAPI(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = UserItemSerializer
 
-    # def get(self,request):
-    #     queryset = Product.objects.all()
-    #     return Response({"request":queryset})
+    def get(self, request):
+        queryset = Product.objects.all().order_by('-total')[:5]
+        serializer = UserItemSerializer(queryset, many=True)
+        return Response({"request":serializer.data})
+        

@@ -8,8 +8,9 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserItemSerializer(serializers.ModelSerializer):
-    customer = serializers.CharField(read_only=True)
-
     class Meta:
         model = Product
-        fields = ['customer', ]
+        fields = ['customer', 'total']
+
+    customer = serializers.CharField(read_only=True)
+    total = serializers.IntegerField()

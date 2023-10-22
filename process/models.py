@@ -13,7 +13,7 @@ class Customer(models.Model):
     
 
 class Product(models.Model):
-    customer = models.ForeignKey('Customer', on_delete=models.CASCADE, max_length=50)
+    customer = models.ForeignKey('Customer', on_delete=models.CASCADE, max_length=50, related_name='products')
     item = models.CharField(verbose_name='Товар', max_length=50)
     total = models.IntegerField('Sum')
     quantity = models.PositiveIntegerField('Quantity')
@@ -25,3 +25,5 @@ class Product(models.Model):
     class Meta:
         verbose_name = "Товар"
         verbose_name_plural = "Товары"
+
+

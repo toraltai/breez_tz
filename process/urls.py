@@ -3,7 +3,6 @@ from .views import *
 
 
 urlpatterns = [
-    path('api/v1/file', FileAPI.as_view()),
-    path('api/v1/info', UserItemAPI.as_view()),
-
+    path('v1/add-deals', add_deals),
+    path('v1/top5', UserItemAPI.as_view()),
 ]
