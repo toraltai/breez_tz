@@ -1,4 +1,4 @@
-from django.conf import settings
+import io
 from django.views.decorators.cache import cache_page
 from rest_framework import generics
 from rest_framework.decorators import api_view
@@ -14,8 +14,9 @@ def add_deals(request):
     file_data = request.data.get('file')
     if allowed_file(str(file_data)):
         import json
-        with open(f'{file_data}', 'r') as file:
-            data = json.load(file)
+        file_content = file_data.read().decode('utf8')
+        io_string = io.StringIO(file_content)
+        data = json.load(io_string)
     else:
         return Response('Need csv')
     
