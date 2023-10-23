@@ -1,7 +1,0 @@
-README.md
-test.py
-venv/
-__pycache__/
-dump.rdb
-db.sqlite3
-migrate.sh
