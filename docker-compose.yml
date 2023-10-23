@@ -7,7 +7,7 @@ services:
       sh -c "python3 manage.py makemigrations && 
       python3 manage.py migrate && 
       python3 su.py && 
-      gunicorn config.wsgi:application -b 0.0.0.0:8000 --workers 2 --threads 4"
+      python3 server.py"
     volumes:
       - ./app:/usr/src/app
       - static_files:/usr/src/app/staticfiles
