@@ -1,4 +1,4 @@
 django
 djangorestframework
 django-redis
-gunicorn
+cherrypy
