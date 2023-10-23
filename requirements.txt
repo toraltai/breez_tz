@@ -2,3 +2,4 @@ django
 djangorestframework
 django-redis
 gunicorn
+whitenoise

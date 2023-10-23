@@ -6,8 +6,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./config:/config
-      - ./static:/code/static
+      - /static:/code/static
     command: >
       sh -c "python3 manage.py makemigrations && 
       python3 manage.py migrate && 
@@ -22,10 +21,9 @@ services:
   nginx:
     image: "nginx:latest"
     ports:
-      - "80:80"
+      - 80:80
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./static:/code/static
+      - /static:/code/static
 
 
   redis:
