@@ -24,7 +24,8 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customer
-        fields = '__all__'
+        # fields = '__all__'
+        exclude = ['id']
 
     def get_total(self, obj):
         total = sum(product.total for product in obj.products.all())

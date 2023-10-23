@@ -1,4 +1,4 @@
-from django.conf import settings
+import io
 from django.views.decorators.cache import cache_page
 from rest_framework import generics
 from rest_framework.decorators import api_view
@@ -14,8 +14,9 @@ def add_deals(request):
     file_data = request.data.get('file')
     if allowed_file(str(file_data)):
         import json
-        with open(f'{file_data}', 'r') as file:
-            data = json.load(file)
+        file_content = file_data.read().decode('utf8')
+        io_string = io.StringIO(file_content)
+        data = json.load(io_string)
     else:
         return Response('Need csv')
     
@@ -66,13 +67,14 @@ def add_deals(request):
         return Response({"status":"Something wrong"})
 
 
+
 class UserItemAPI(generics.ListAPIView):
     serializer_class = CustomerSerializer
 
     def get_queryset(self):
         return Customer.objects.prefetch_related('item').annotate(total=Sum('products__total')
                                                                   ).order_by('-total')[:5]
-
+    
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serialized_data = CustomerSerializer(queryset, many=True).data
