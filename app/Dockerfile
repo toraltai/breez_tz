@@ -10,4 +10,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD python3 manage.py collectstatic --no-input
+RUN python3 manage.py collectstatic --no-input
