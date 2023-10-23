@@ -3,6 +3,7 @@ services:
   web:
     build:
       context: ./app/
+    container_name: web
     command: >
       sh -c "python3 manage.py makemigrations && 
       python3 manage.py migrate && 
@@ -10,7 +11,6 @@ services:
       python3 server.py"
     volumes:
       - ./app:/usr/src/app
-      - static_files:/usr/src/app/staticfiles
     expose:
       - 8000
     depends_on:
@@ -19,14 +19,15 @@ services:
   nginx:
     build:
       context: ./nginx/
+    container_name: nginx
     ports:
       - 80:80
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
-      - static_files:/home/app/staticfiles
 
   redis:
     image: "redis:latest"
+    container_name: redis
     ports:
       - "6379:6379"
 
